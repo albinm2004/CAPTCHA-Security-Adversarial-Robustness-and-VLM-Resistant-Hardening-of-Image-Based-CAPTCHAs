@@ -48,34 +48,24 @@ CHRIST (Deemed to be University)
 Progress report (Part 2) covers the dataset pipeline, classifier benchmarking,
 and the adversarial hardening plan.
 
-- **Stage 8.3 (CLIP zero-shot attacker):** implementation complete — new
-  cells in `CAPTCHA_Part2_Step1_Dataset_EDA_6.ipynb` (Step 5) load a
-  pretrained CLIP checkpoint, encode the real target/distractor class names
-  as text prompts, cache an embedding per crop (`coco_subset/clip_embeddings_cache.pkl`,
-  reused by later stages), and run the same 60-grid seeded evaluation the
-  Stage-4 CNN used, for a directly comparable solve rate. Not yet executed —
-  see `STAGE_8_3_STATUS.md` for why (a network limitation in the session that
-  wrote it, not a code issue) and what running it in Colab will produce.
-- **Stage 8.4/8.5 (shared PGD hardening engine + CNN-only control):**
-  implementation complete — new cells (Step 6) add one PGD engine, toggled
-  by a single `use_clip` flag between dual CNN+CLIP hardening (8.4) and a
-  CNN-only control (8.5), plus an SSIM/LPIPS perceptual check before any
-  hardened image is used downstream. Its math was functionally verified
-  against mock models in this session (gradients flow, the L∞ budget is
-  respected exactly, both loss terms move the right direction) — but not
-  run against the real MobileNetV2/CLIP checkpoints yet. See
-  `STAGE_8_4_8_5_STATUS.md` for what was verified vs. what still needs a
-  GPU + real weights to produce actual numbers.
-- **Stage 8.6 (multi-attacker evaluation matrix):** implementation
-  complete — new cells (Step 7) add a held-out attacker (ResNet18, never
-  used in Stage 8.4/8.5's hardening loss), an ensemble attacker
-  (CNN+CLIP voting), and the 3×4 solve-rate matrix (original /
-  CNN-only-hardened / dual-hardened x CNN / CLIP / Ensemble / Held-out)
-  that is this project's central results table. Ensemble voting and
-  matrix-construction logic functionally verified against mock models
-  (valid predictions, correct matrix shape, reproducible grid layouts
-  across image sets). Not run for real — it's downstream of Stage 8.3's
-  embeddings and Stage 8.4/8.5's hardened crops, neither of which has
-  executed yet. See `STAGE_8_6_STATUS.md`.
+- **Stages 8.3, 8.4/8.5, 8.6 — executed for real on 2026-09-19** (Colab,
+  GPU runtime). Real results, not estimates — see `RESULTS_2026-09-19.md`
+  for the full breakdown:
+  - CLIP zero-shot solve rate **85.0%** (51/60), actually *higher* than the
+    Stage-4 CNN's 76.7% — confirms both attacker types need defending against.
+  - The 3x4 solve-rate matrix (original / CNN-only-hardened /
+    dual-hardened x CNN / CLIP / Ensemble / Held-out ResNet18) is built.
+    Dual hardening beats CNN-only hardening against CLIP specifically
+    (0.600 vs 0.683 solve rate) — the actual novelty claim, and it holds.
+  - Two honest caveats found in this run: the Ensemble column is
+    currently uninformative (CNN's confidence collapse dominates the
+    50/50 vote), and dual hardening transferred *worse* than CNN-only
+    hardening to the held-out ResNet18 (0.350 vs 0.267) — the opposite of
+    what "dual defense generalizes better" would predict. Both are
+    documented, not smoothed over.
+  - **Known gap, now fixed**: the SSIM/LPIPS perceptual check was defined
+    in Step 6.4 but never actually run before Step 7's matrix was
+    computed. A new Section 6.5 (added 2026-09-20) runs it for real —
+    run this before treating the matrix numbers as final.
 - **Stages 8.7–8.9** (human usability study, consolidation, final
   write-up): not started.
