@@ -46,6 +46,16 @@ CHRIST (Deemed to be University)
 ## Status
 
 Progress report (Part 2) covers the dataset pipeline, classifier benchmarking,
-and the adversarial hardening plan. Adversarial training experiments
-(Stage 8.3–8.6: CLIP embeddings, PGD baseline, ensemble attack, VLM
-resistance) are in progress.
+and the adversarial hardening plan.
+
+- **Stage 8.3 (CLIP zero-shot attacker):** implementation complete — new
+  cells in `CAPTCHA_Part2_Step1_Dataset_EDA_6.ipynb` (Step 5) load a
+  pretrained CLIP checkpoint, encode the real target/distractor class names
+  as text prompts, cache an embedding per crop (`coco_subset/clip_embeddings_cache.pkl`,
+  reused by later stages), and run the same 60-grid seeded evaluation the
+  Stage-4 CNN used, for a directly comparable solve rate. Not yet executed —
+  see `STAGE_8_3_STATUS.md` for why (a network limitation in the session that
+  wrote it, not a code issue) and what running it in Colab will produce.
+- **Stages 8.4–8.9** (PGD dual-attacker hardening, CNN-only control,
+  multi-attacker evaluation matrix, human usability study, consolidation,
+  final write-up): not started.
