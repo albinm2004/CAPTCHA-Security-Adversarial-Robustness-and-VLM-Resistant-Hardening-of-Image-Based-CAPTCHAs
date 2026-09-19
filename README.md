@@ -66,5 +66,16 @@ and the adversarial hardening plan.
   run against the real MobileNetV2/CLIP checkpoints yet. See
   `STAGE_8_4_8_5_STATUS.md` for what was verified vs. what still needs a
   GPU + real weights to produce actual numbers.
-- **Stages 8.6–8.9** (multi-attacker evaluation matrix, human usability
-  study, consolidation, final write-up): not started.
+- **Stage 8.6 (multi-attacker evaluation matrix):** implementation
+  complete — new cells (Step 7) add a held-out attacker (ResNet18, never
+  used in Stage 8.4/8.5's hardening loss), an ensemble attacker
+  (CNN+CLIP voting), and the 3×4 solve-rate matrix (original /
+  CNN-only-hardened / dual-hardened x CNN / CLIP / Ensemble / Held-out)
+  that is this project's central results table. Ensemble voting and
+  matrix-construction logic functionally verified against mock models
+  (valid predictions, correct matrix shape, reproducible grid layouts
+  across image sets). Not run for real — it's downstream of Stage 8.3's
+  embeddings and Stage 8.4/8.5's hardened crops, neither of which has
+  executed yet. See `STAGE_8_6_STATUS.md`.
+- **Stages 8.7–8.9** (human usability study, consolidation, final
+  write-up): not started.
