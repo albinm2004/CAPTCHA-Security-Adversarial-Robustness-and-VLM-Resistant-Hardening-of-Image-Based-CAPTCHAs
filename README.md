@@ -56,6 +56,15 @@ and the adversarial hardening plan.
   Stage-4 CNN used, for a directly comparable solve rate. Not yet executed —
   see `STAGE_8_3_STATUS.md` for why (a network limitation in the session that
   wrote it, not a code issue) and what running it in Colab will produce.
-- **Stages 8.4–8.9** (PGD dual-attacker hardening, CNN-only control,
-  multi-attacker evaluation matrix, human usability study, consolidation,
-  final write-up): not started.
+- **Stage 8.4/8.5 (shared PGD hardening engine + CNN-only control):**
+  implementation complete — new cells (Step 6) add one PGD engine, toggled
+  by a single `use_clip` flag between dual CNN+CLIP hardening (8.4) and a
+  CNN-only control (8.5), plus an SSIM/LPIPS perceptual check before any
+  hardened image is used downstream. Its math was functionally verified
+  against mock models in this session (gradients flow, the L∞ budget is
+  respected exactly, both loss terms move the right direction) — but not
+  run against the real MobileNetV2/CLIP checkpoints yet. See
+  `STAGE_8_4_8_5_STATUS.md` for what was verified vs. what still needs a
+  GPU + real weights to produce actual numbers.
+- **Stages 8.6–8.9** (multi-attacker evaluation matrix, human usability
+  study, consolidation, final write-up): not started.
