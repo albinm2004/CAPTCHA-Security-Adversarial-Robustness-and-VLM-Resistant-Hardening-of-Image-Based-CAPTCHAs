@@ -48,39 +48,47 @@ CHRIST (Deemed to be University)
 Progress report (Part 2) covers the dataset pipeline, classifier benchmarking,
 and the adversarial hardening plan.
 
-- **Critical finding (2026-09-20): `PGD_EPSILON = 8/255` is too large.**
-  The perceptual check (SSIM/LPIPS) that was missing on 2026-09-19 has now
-  actually been run — only **~15.7–15.8%** of hardened crops pass the
-  SSIM ≥ 0.90 "unchanged to a human" threshold, across both hardening
-  variants and confirmed on 1,058 crops (mean SSIM ~0.852, worst ~0.54).
-  LPIPS is more forgiving but still only ~47.5% pass. **This means most
-  "hardened" CAPTCHA images are currently visibly corrupted, not
-  imperceptibly perturbed** — undermining the core "hard for bots, easy
-  for humans" requirement. See `RESULTS_2026-09-20.md` for the full
-  breakdown. **Next step: lower `PGD_EPSILON` (try 2/255 or 1/255) and
-  re-run Sections 6.3–7.5** before treating any solve-rate number as a
-  final result.
-- **Stages 8.3, 8.4/8.5, 8.6 — executed for real across two independent
-  Colab runs (2026-09-19 and 2026-09-20)**. See `RESULTS_2026-09-19.md`
-  and `RESULTS_2026-09-20.md` for full breakdowns.
+- **Critical finding (2026-09-20, updated): lowering epsilon fixed
+  perceptibility but broke the novelty claim.** Two runs at
+  `PGD_EPSILON = 8/255` showed only ~15.7–15.8% of hardened crops passing
+  the SSIM ≥ 0.90 "unchanged to a human" threshold — most "hardened"
+  images were visibly corrupted. Lowering to `PGD_EPSILON = 2/255` fixed
+  that (**99.8–99.9% SSIM pass rate**, mean SSIM ~0.971), but the
+  dual-hardening-beats-CNN-only-against-CLIP result that had held across
+  two runs at 8/255 **reverses at 2/255**: dual hardening's CLIP solve
+  rate (0.717) is now *higher* (worse defended) than CNN-only's (0.683).
+  **The apparent novelty was an artifact of an epsilon too large to be
+  perceptually valid.** See `RESULTS_2026-09-20_run3.md` for the full
+  breakdown and next steps (raising `CLIP_LOSS_WEIGHT`, or trying an
+  intermediate epsilon like 4/255, are the two untried options before
+  concluding the dual-hardening advantage doesn't exist at a usable
+  budget).
+- **Stages 8.3, 8.4/8.5, 8.6 — executed for real across three independent
+  Colab runs (2026-09-19, and twice on 2026-09-20)**. See
+  `RESULTS_2026-09-19.md`, `RESULTS_2026-09-20.md`, and
+  `RESULTS_2026-09-20_run3.md` for full breakdowns.
   - CLIP zero-shot solve rate **85.0%** (51/60), higher than the Stage-4
     CNN's 76.7% — confirms both attacker types need defending against.
+    This part is stable across all three runs (CLIP is unaffected by the
+    hardening epsilon, since it's only ever evaluated on original images
+    for this baseline number).
   - The 3×4 solve-rate matrix (original / CNN-only-hardened /
     dual-hardened × CNN / CLIP / Ensemble / Held-out ResNet18) is built
-    and now reproduced across two independent runs.
-  - **Novelty claim confirmed across both runs**: dual hardening beats
-    CNN-only hardening against CLIP specifically (run 1: 0.600 vs 0.683;
-    run 2: 0.500 vs 0.683) — the actual point of the CLIP loss term, and
-    it holds consistently. *However*, both runs used the epsilon now
-    known to cause visible corruption (see the critical finding above),
-    so this comparison needs re-confirming once epsilon is lowered.
-  - **Two honest caveats, also confirmed across both runs**: the
-    Ensemble column is uninformative (CNN's confidence collapse
-    dominates the 50/50 vote) in both runs, and dual hardening
-    transferred *worse* than CNN-only hardening to the held-out ResNet18
-    in both runs (run 1: 0.350 vs 0.267; run 2: 0.383 vs 0.317) — the
-    opposite of what "dual defense generalizes better" would predict.
-    Neither is smoothed over.
+    and has now been run three times, at two different epsilon values.
+  - **Novelty claim (dual beats CNN-only against CLIP): held at
+    epsilon=8/255 across two runs (0.600 vs 0.683, then 0.500 vs 0.683),
+    but reverses at the perceptually-valid epsilon=2/255 (0.717 vs
+    0.683)** — currently not supported at a usable budget. This is the
+    single most important open question in the project right now.
+  - **Ensemble column is uninformative across all three runs** (CNN's
+    confidence collapse dominates the 50/50 vote) — still needs
+    redesigning.
+  - **Held-out transfer**: dual hardening has transferred worse than
+    CNN-only hardening to the untrained ResNet18 in all three runs (the
+    gap narrows at the lower epsilon: 0.617 vs 0.583, vs. 0.350 vs 0.267
+    and 0.383 vs 0.317 at the higher epsilon) — consistent direction,
+    smaller magnitude.
 - **Stages 8.7–8.9** (human usability study, consolidation, final
-  write-up): not started — blocked on the epsilon fix above for 8.8/8.9,
-  and on the team's own recruitment/consent plan for 8.7.
+  write-up): not started — blocked on resolving the novelty question
+  above for 8.8/8.9, and on the team's own recruitment/consent plan for
+  8.7.
